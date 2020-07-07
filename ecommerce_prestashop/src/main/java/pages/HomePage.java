@@ -17,7 +17,7 @@ public class HomePage {
 	public HomePage(WebDriver driver) {
 		this.driver = driver;
 	}
-	
+		
 	List<WebElement> listaProdutos = new ArrayList<WebElement>();
 	private By  listProdutos = By.cssSelector("div[class='product-description']");
 	private By  labelProdutoCarrinho = By.cssSelector("span[class='cart-products-count']");
@@ -46,11 +46,11 @@ public class HomePage {
 		return qtdProdutosCarrinhoInt;
 	}
 
-	public String obterNomeProduto(int indice) {
+	public String obterNomeProdutoPorIndice(int indice) {
 		return driver.findElements(labelDescricaoProdutos).get(indice).getText();
 	}
 
-	public String obterPrecoProduto(int indice) {
+	public String obterPrecoProdutoPorIndice(int indice) {
 		return driver.findElements(labelPrecoProdutos).get(indice).getText();
 	}
 

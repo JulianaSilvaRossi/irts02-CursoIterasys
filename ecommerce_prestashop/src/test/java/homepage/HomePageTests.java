@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import base.BaseTests;
 import pages.LoginPage;
+import pages.ModalProdutoPage;
 import pages.ProdutoPage;
 
 public class HomePageTests extends BaseTests {
@@ -27,16 +28,18 @@ public class HomePageTests extends BaseTests {
 	}
 
 	ProdutoPage produtoPage;
+	String nomeProduto_ProdutoPage;
+	String precoProduto_ProdutoPage;
 	@Test
 	public void testValidarDetalhesProduto_DescricaoValorIguais() {
 		int indice = 0;
 		String nomeProduto_HomePage = homePage.obterNomeProdutoPorIndice(indice);
-		String precoProduto_HomePage = homePage.obterNomeProdutoPorIndice(indice);
+		String precoProduto_HomePage = homePage.obterPrecoProdutoPorIndice(indice);
 		
 		produtoPage = homePage.clicarProduto(indice);
 		
-		String nomeProduto_ProdutoPage = produtoPage.obterNomeProduto(indice);
-		String precoProduto_ProdutoPage = produtoPage.obterPrecoProduto(indice);
+		nomeProduto_ProdutoPage = produtoPage.obterNomeProduto(indice);
+		precoProduto_ProdutoPage = produtoPage.obterPrecoProduto(indice);
 		
 		assertEquals(nomeProduto_ProdutoPage, nomeProduto_HomePage.toUpperCase());
 		assertEquals(precoProduto_ProdutoPage, precoProduto_HomePage.toUpperCase());
@@ -57,6 +60,11 @@ public class HomePageTests extends BaseTests {
 	
 	@Test
 	public void testIncluirProdutoNoCarrinho_ProdutoIncluidoComSucesso() {
+		
+		String tamanhoProduto = "M";
+		String corProduto = "Black";
+		int qtdProduto = 2;
+		
 		if(!homePage.verificarAutenticacao("Automacao Tests")) {
 			testLoginComSucesso_UsuarioLogado();
 		}
@@ -67,15 +75,36 @@ public class HomePageTests extends BaseTests {
 		System.out.println(listaOpcoes.get(0));
 		System.out.println("Tamanho da lista: " + listaOpcoes.size());
 		
-		produtoPage.selecionarOpcaoDropDown("M");
+		produtoPage.selecionarOpcaoDropDown(tamanhoProduto);
 		
 		listaOpcoes = produtoPage.obterOpcoesSelecionadas();
 		System.out.println(listaOpcoes.get(0));
 		System.out.println("Tamanho da lista: " + listaOpcoes.size());
 		
 		produtoPage.selecionarCorPreta();
+		produtoPage.alterarQuantidade(qtdProduto);
 		
-		produtoPage.alterarQuantidade(2);
+		ModalProdutoPage modalProdutoPage = produtoPage.clicarBotaoAddToCart();
+		
+		assertTrue(modalProdutoPage.obterMensagemProdutoAdicionado().endsWith("Product successfully added to your shopping cart"));
+		
+		assertEquals(modalProdutoPage.obterDescricaoProduto().toUpperCase(), nomeProduto_ProdutoPage);
+		
+		String precoProdutoString = modalProdutoPage.obterPrecoProduto();
+		precoProdutoString = precoProdutoString.replace("$", "");
+		Double precoProduto = Double.parseDouble(precoProdutoString);
+		
+		assertEquals(modalProdutoPage.obterTamanhoProdutoAdicionado(), tamanhoProduto);
+		assertEquals(modalProdutoPage.obterCorProdutoAdicionado(), corProduto);
+		assertEquals(modalProdutoPage.obterQtdProdutoAdicionado(), Integer.toString(qtdProduto));
+		
+		String subtotalString = modalProdutoPage.obterSubtotal();
+		subtotalString = subtotalString.replace("$", "");
+		Double subtotal = Double.parseDouble(subtotalString);
+		
+		Double subtotalCalculado = qtdProduto * precoProduto;
+		assertEquals(subtotalCalculado, subtotal);
+		
 	}
 
 }

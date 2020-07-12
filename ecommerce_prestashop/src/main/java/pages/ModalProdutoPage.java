@@ -21,6 +21,7 @@ public class ModalProdutoPage {
 	private By  lblPrecoProduto = By.cssSelector("div[class='modal-dialog'] p[class*='product-price']");
 	private By  listCaracteristicaProduto = By.cssSelector("div[class='modal-dialog'] div[class*='col-md-6']:nth-child(2) span strong");
 	private By  lblSubtotal = By.cssSelector("div[class='modal-dialog'] div[class='cart-content'] p:nth-child(2) span[class='value']");
+	private By  btnProceedToCheckout = By.cssSelector("div[class='modal-dialog'] a[class*='btn-primary']");
 	
 	public String obterMensagemProdutoAdicionado() {
 		FluentWait wait = new FluentWait(driver).withTimeout(Duration.ofMillis(5000))
@@ -54,6 +55,12 @@ public class ModalProdutoPage {
 	
 	public String obterSubtotal() {
 		return driver.findElement(lblSubtotal).getText();
+	}
+
+	public CarrinhoPage clicarBotaoProceesToChekout() {
+		driver.findElement(btnProceedToCheckout).click();
+		return new CarrinhoPage(driver);
+		
 	}
 
 }

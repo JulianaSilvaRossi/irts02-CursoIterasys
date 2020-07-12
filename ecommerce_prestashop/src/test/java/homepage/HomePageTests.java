@@ -9,9 +9,12 @@ import java.util.List;
 import org.junit.Test;
 
 import base.BaseTests;
+import pages.CarrinhoPage;
+import pages.CheckoutPage;
 import pages.LoginPage;
 import pages.ModalProdutoPage;
 import pages.ProdutoPage;
+import util.Funcoes;
 
 public class HomePageTests extends BaseTests {
 	
@@ -58,6 +61,7 @@ public class HomePageTests extends BaseTests {
 		
 	}
 	
+	ModalProdutoPage modalProdutoPage;
 	@Test
 	public void testIncluirProdutoNoCarrinho_ProdutoIncluidoComSucesso() {
 		
@@ -84,7 +88,7 @@ public class HomePageTests extends BaseTests {
 		produtoPage.selecionarCorPreta();
 		produtoPage.alterarQuantidade(qtdProduto);
 		
-		ModalProdutoPage modalProdutoPage = produtoPage.clicarBotaoAddToCart();
+		modalProdutoPage = produtoPage.clicarBotaoAddToCart();
 		
 		assertTrue(modalProdutoPage.obterMensagemProdutoAdicionado().endsWith("Product successfully added to your shopping cart"));
 		
@@ -105,6 +109,80 @@ public class HomePageTests extends BaseTests {
 		Double subtotalCalculado = qtdProduto * precoProduto;
 		assertEquals(subtotalCalculado, subtotal);
 		
+	}
+	
+	// VALORES ESPERADOS
+	String esperado_lblNomeProdutoCarrinho = "Hummingbird printed t-shirt";
+	Double esperado_lblPrecoProdutoCarrinho = 19.12;
+	String esperado_lblSizeCarrinho = "M";
+	String esperado_lblColorCarrinho = "Black";
+	int esperado_inputQtdCarrinho = 2;
+	Double esperado_lblSubtotalCarrinho = esperado_lblPrecoProdutoCarrinho * esperado_inputQtdCarrinho;
+	
+	int esperado_lblItensDetalheCarrinho = esperado_inputQtdCarrinho;
+	Double esperado_lblShippingDetalheCarrinho = esperado_lblSubtotalCarrinho;
+	Double esperado_lblTotalSemTaxaDetalheCarrinho = 7.00;
+	Double esperado_lblTotalComTaxaDetalheCarrinho = esperado_lblSubtotalCarrinho + esperado_lblTotalSemTaxaDetalheCarrinho ;
+	Double esperado_lblImpostosDetalheCarrinho = esperado_lblTotalComTaxaDetalheCarrinho;
+	Double esperado_btnProceedToCheckout = 0.00;
+	
+	CarrinhoPage carrinhoPage;
+	
+	@Test
+	public void testIrParaCarrinho_InformacoesPersistidas() {
+		testIncluirProdutoNoCarrinho_ProdutoIncluidoComSucesso();
+		carrinhoPage = modalProdutoPage.clicarBotaoProceesToChekout();
+		
+		System.out.println("TELA DO CARRINHO ");
+		
+		System.out.println(carrinhoPage.obter_lblNomeProdutoCarrinho());
+		System.out.println(Funcoes.removeCifraoDevolveDouble(carrinhoPage.obter_lblPrecoProdutoCarrinho()));
+		System.out.println(carrinhoPage.obter_lblSizeCarrinho());
+		System.out.println(carrinhoPage.obter_lblColorCarrinho());
+		System.out.println(carrinhoPage.obter_inputQtdCarrinho());
+		System.out.println(Funcoes.removeCifraoDevolveDouble(carrinhoPage.obter_lblSubtotalCarrinho()));
+		
+		System.out.println("TELA DO CARRINHO DETALHES");
+		System.out.println(Funcoes.removeTextoItemsDevolveInt(carrinhoPage.obter_lblItensDetalheCarrinho()));
+		System.out.println(Funcoes.removeCifraoDevolveDouble(carrinhoPage.obter_lblShippingDetalheCarrinho()));
+		System.out.println(Funcoes.removeCifraoDevolveDouble(carrinhoPage.obter_lblTotalSemTaxaDetalheCarrinho()));
+		System.out.println(Funcoes.removeCifraoDevolveDouble(carrinhoPage.obter_lblTotalComTaxaDetalheCarrinho()));
+		System.out.println(Funcoes.removeCifraoDevolveDouble(carrinhoPage.obter_lblImpostosDetalheCarrinho()));
+		
+		assertEquals(esperado_lblNomeProdutoCarrinho, carrinhoPage.obter_lblNomeProdutoCarrinho());
+		assertEquals(esperado_lblPrecoProdutoCarrinho, Funcoes.removeCifraoDevolveDouble(carrinhoPage.obter_lblPrecoProdutoCarrinho()));
+		assertEquals(esperado_lblSizeCarrinho, carrinhoPage.obter_lblSizeCarrinho());
+		assertEquals(esperado_lblColorCarrinho, carrinhoPage.obter_lblColorCarrinho());
+		assertEquals(esperado_inputQtdCarrinho, Integer.parseInt(carrinhoPage.obter_inputQtdCarrinho()));
+		assertEquals(esperado_lblSubtotalCarrinho, Funcoes.removeCifraoDevolveDouble(carrinhoPage.obter_lblSubtotalCarrinho()));
+		
+		/*assertEquals(esperado_lblItensDetalheCarrinho, Funcoes.removeTextoItemsDevolveInt(carrinhoPage.obter_lblItensDetalheCarrinho()));
+		assertEquals(esperado_lblShippingDetalheCarrinho, Funcoes.removeCifraoDevolveDouble(carrinhoPage.obter_lblTotalSemTaxaDetalheCarrinho()));
+		assertEquals(esperado_lblTotalSemTaxaDetalheCarrinho, Funcoes.removeCifraoDevolveDouble(carrinhoPage.obter_lblTotalSemTaxaDetalheCarrinho()));
+		assertEquals(esperado_lblTotalComTaxaDetalheCarrinho, Funcoes.removeCifraoDevolveDouble(carrinhoPage.obter_lblTotalComTaxaDetalheCarrinho()));
+		assertEquals(esperado_lblImpostosDetalheCarrinho, Funcoes.removeCifraoDevolveDouble(carrinhoPage.obter_lblImpostosDetalheCarrinho()));
+		*/
+		//assertEquals(esperado_btnProceedToCheckout, Funcoes.removeCifraoDevolveDouble(carrinhoPage.obter_lblImpostosDetalheCarrinho()));
+		
+	}
+	
+	// VALORES ESPERADO
+	String esperado_nomeCliente = "Automacao Tests";
+	
+	CheckoutPage checkoutPage;
+	
+	public void testIrParaCheckout_FreteMeioPagamentoEnderecoListado() {
+		testIrParaCarrinho_InformacoesPersistidas();
+		
+		// Clicar no botão
+		checkoutPage = carrinhoPage.clicar_btnProceedToCheckout();
+		
+		// Preencher info
+		
+		// Validar info
+		assertEquals(esperado_nomeCliente, checkoutPage.obter_lblNomeClienteCheckout());
+		
+		checkoutPage.clicar_btnContinueCheckout();
 	}
 
 }
